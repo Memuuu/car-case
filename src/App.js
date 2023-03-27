@@ -79,6 +79,20 @@ function App() {
     getCars();
   }, [])
 
+  const carValidation = (car) => {
+    if (
+      (car == null) ||
+      (car.brand == null || car.brand === '') ||
+      (car.color == null) ||
+      (car.model == null || car.model === '') ||
+      (car.year == null)
+    ) {
+      alert("Tüm alanları doldurunuz...!!!")
+      return false
+    }
+    return true
+  };
+  
   const getCars = async () => {
     await axios.get(`https://641aefca1f5d999a4456cddd.mockapi.io/cars`)
       .then(res => {
@@ -87,13 +101,15 @@ function App() {
   }
 
   const onAddCar = async (newCar) => {
-    setIsLoading(true)
-    await axios.post(`https://641aefca1f5d999a4456cddd.mockapi.io/cars`, newCar)
-      .then(res => {
-        setDataSource((prev) => [res.data, ...prev])
-      })
-    setIsLoading(false)
-    resetModal();
+    if (carValidation(newCar)) {
+      setIsLoading(true)
+      await axios.post(`https://641aefca1f5d999a4456cddd.mockapi.io/cars`, newCar)
+        .then(res => {
+          setDataSource((prev) => [res.data, ...prev])
+        })
+      setIsLoading(false)
+      resetModal();
+    }
   };
 
   const onDeleteCar = (record) => {
@@ -112,23 +128,24 @@ function App() {
   };
 
   const onEditCar = async (editedCar) => {
-    setIsLoading(true)
-    await axios.put(`https://641aefca1f5d999a4456cddd.mockapi.io/cars/${editedCar.id}`, editedCar)
-      .then(res => {
-        setDataSource((pre) => {
-          return pre.map((car) => {
-            if (car.id === modalCar.id) {
-              return modalCar;
-            } else {
-              return car;
-            }
+    if (carValidation(editedCar)) {
+      setIsLoading(true)
+      await axios.put(`https://641aefca1f5d999a4456cddd.mockapi.io/cars/${editedCar.id}`, editedCar)
+        .then(res => {
+          setDataSource((pre) => {
+            return pre.map((car) => {
+              if (car.id === modalCar.id) {
+                return modalCar;
+              } else {
+                return car;
+              }
+            });
           });
-        });
-      })
-    setIsLoading(false)
-    resetModal()
+        })
+      setIsLoading(false)
+      resetModal()
+    }
   };
-
   const resetModal = () => {
     setIsModalVisible(false);
     setModalCar(null);
